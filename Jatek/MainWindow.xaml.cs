@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Jatek.Controller;
+using Jatek.Logic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,9 +22,31 @@ namespace Jatek
     /// </summary>
     public partial class MainWindow : Window
     {
+        GameController control;
         public MainWindow()
         {
             InitializeComponent();
+            JatekLogic logic = new JatekLogic();
+            display.SetUpModel(logic);
+            control = new GameController(logic);
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+            display.InvalidateVisual();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+            display.InvalidateVisual();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            control.KeyPressed(e.Key);
+            display.InvalidateVisual();
         }
     }
 }
