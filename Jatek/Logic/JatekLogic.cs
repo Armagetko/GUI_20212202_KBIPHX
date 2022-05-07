@@ -19,8 +19,12 @@ namespace Jatek.Logic
             up, down, left, right
         }
         private Queue<string> levels;
-
+        public event EventHandler Changed;
         public JatekElements[,] GameMatrix { get; set; }
+        public Penguin Penguin { get; set; }
+        public List<Seal> Seals { get; set; }
+        public List<Bulletfish> Bulletfishes { get; set; }
+        public List<Bullet> Bullets { get; set; }
 
         public JatekLogic()
         {
@@ -104,12 +108,7 @@ namespace Jatek.Logic
             }
 
         }
-        public void Shoot()
-        {
-            throw new NotImplementedException();
-        }
-
-        private int[] WhereAmI()
+        public  int[] WhereAmI()
         {
             for (int i = 0; i < GameMatrix.GetLength(0); i++)
             {
@@ -122,6 +121,14 @@ namespace Jatek.Logic
                 }
             }
             return new int[] { -1, -1 };
+        }
+        public void Shoot()
+        {
+            throw new NotImplementedException();
+        }
+        public void Turn(Directions direction)
+        {
+            throw new NotImplementedException();
         }
     }
 }

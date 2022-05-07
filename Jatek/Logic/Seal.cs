@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Jatek.Logic
 {
-    class Seal
+    public class Seal
     {
     }
 }
