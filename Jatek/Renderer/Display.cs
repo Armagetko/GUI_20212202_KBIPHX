@@ -15,7 +15,21 @@ namespace Jatek.Renderer
     public class Display:FrameworkElement
     {
         IGameModel model;
+        Brush iceBrush;
+        Brush ice1Brush;
+        Brush ice2Brush;
+        Brush ice3Brush;
+        Brush ice4Brush;
+        Brush ice5Brush;
+        Brush penguinBrush;
+        Brush garbageBrush;
+        Brush bulletfishBrush;
+        Brush hpfishBrush;
         Size size;
+        public Display()
+        {
+
+        }
 
         public void Resize(Size size)
         {
@@ -33,7 +47,7 @@ namespace Jatek.Renderer
                 double rectWidth = size.Width / model.GameMatrix.GetLength(1);
                 double rectHeight = size.Height / model.GameMatrix.GetLength(0);
 
-                drawingContext.DrawRectangle(Brushes.Black, new Pen(Brushes.Black, 0),
+                drawingContext.DrawRectangle(new ImageBrush(new BitmapImage(new Uri(Path.Combine("Images", "bg.bmp"), UriKind.Relative))), new Pen(Brushes.Black, 0),
                     new Rect(0, 0, size.Width, size.Height));
 
                 for (int i = 0; i < model.GameMatrix.GetLength(0); i++)
