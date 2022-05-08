@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace Jatek.Logic
         }
         public enum Directions
         {
-            up, down, left, right
+            up=0, right=1, down=2, left=3
         }
         private Queue<string> levels;
         public event EventHandler Changed;
@@ -25,10 +26,14 @@ namespace Jatek.Logic
         public List<Seal> Seals { get; set; }
         public List<Bulletfish> Bulletfishes { get; set; }
         public List<Bullet> Bullets { get; set; }
+        Size gameArea;
 
         public JatekLogic()
         {
             levels = new Queue<string>();
+            Seals = new List<Seal>();
+            Bulletfishes = new List<Bulletfish>();
+            Bullets = new List<Bullet>();
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"), "*.lvl");
             foreach (var item in lvls)
             {
@@ -41,6 +46,8 @@ namespace Jatek.Logic
         {
             string[] lines = File.ReadAllLines(path);
             GameMatrix = new JatekElements[int.Parse(lines[1]), int.Parse(lines[0])];
+            gameArea = new Size(int.Parse(lines[0]), int.Parse(lines[1]));
+            Penguin = new Penguin(gameArea);
             for (int i = 0; i < GameMatrix.GetLength(0); i++)
             {
                 for (int j = 0; j < GameMatrix.GetLength(1); j++)
@@ -106,6 +113,11 @@ namespace Jatek.Logic
                 default:
                     break;
             }
+            if (GameMatrix[i, j] == JatekElements.floor)
+            {
+                GameMatrix[i, j] = JatekElements.player;
+                GameMatrix[old_i, old_j] = JatekElements.floor;
+            }
 
         }
         public  int[] WhereAmI()
@@ -122,13 +134,25 @@ namespace Jatek.Logic
             }
             return new int[] { -1, -1 };
         }
+        public void MoveGameItems()
+        {
+            //for (int i = 0; i < Bullets.Count; i++)
+            //{
+            //    bool inside=Bullets[i].M
+            //}
+        }
         public void Shoot()
         {
             throw new NotImplementedException();
         }
         public void Turn(Directions direction)
         {
-            throw new NotImplementedException();
+            int a = (int)Penguin.direction;
+            while (a <= (int)direction)
+                a++;
+            while (a >= (int)direction)
+                a--;
+            Penguin.Angle = a * 90;
         }
     }
 }

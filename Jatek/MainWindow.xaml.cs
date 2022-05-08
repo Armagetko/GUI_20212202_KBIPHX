@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Jatek
 {
@@ -23,10 +24,11 @@ namespace Jatek
     public partial class MainWindow : Window
     {
         GameController control;
+        JatekLogic logic;
         public MainWindow()
         {
             InitializeComponent();
-            JatekLogic logic = new JatekLogic();
+            logic = new JatekLogic();
             display.SetUpModel(logic);
             control = new GameController(logic);
         }
@@ -39,8 +41,14 @@ namespace Jatek
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
-            display.InvalidateVisual();
+            DispatcherTimer dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromMilliseconds(100);
+            dt.Tick += Dt_Tick;
+            dt.Start();
+        }
+        private void Dt_Tick(object sender, EventArgs e)
+        {
+            logic.MoveGameItems();
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

@@ -3,10 +3,10 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:renderer="clr-namespace:Jatek.Renderer"
         xmlns:local="clr-namespace:Jatek"
+        xmlns:renderer="clr-namespace:Jatek.Renderer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="1200" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
+        Title="MainWindow" Height="800" Width="1600" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
     <Grid x:Name="grid">
         <renderer:Display x:Name="display"/>
     </Grid>

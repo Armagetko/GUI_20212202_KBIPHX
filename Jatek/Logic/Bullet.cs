@@ -9,9 +9,11 @@ namespace Jatek.Logic
 {
     public class Bullet:GameItem
     {
-        public Bullet(Size GameArea, int speedX,int speedY):base(GameArea,8)
+        public Bullet(Size gameArea,int[] whereAmI, int speedX,int speedY):base(gameArea, 8)
         {
-
+            Center = new Point(whereAmI[0], whereAmI[1]);
+            SpeedX = speedX;
+            SpeedY = speedY;
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Jatek.Logic
         public int ItemRadius { get; set; }
         public int SpeedX { get; set; }
         public int SpeedY { get; set; }
+        public int[] PenguinPosition { get; set; }
         public Size GameArea { get; set; }
         public Rectangle Rectangle
         {
@@ -25,9 +26,26 @@ namespace Jatek.Logic
                 );
             }
         }
-        public GameItem(Size GameArea, int itemRadius)
+        public GameItem( Size gameArea, int itemRadius)
         {
 
+        }
+        public bool Move()
+        {
+            Point newCenter = new Point(
+                Center.X + SpeedX,
+                Center.Y + SpeedY);
+            if (newCenter.X >= 0 && newCenter.Y >= 0
+                && newCenter.X < GameArea.Width
+                && newCenter.Y < GameArea.Height)
+            {
+                Center = newCenter;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

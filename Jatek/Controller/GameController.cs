@@ -33,6 +33,9 @@ namespace Jatek.Controller
                 case Key.Right:
                     control.Move(JatekLogic.Directions.right);
                     break;
+                case Key.Space:
+                    control.Shoot();
+                    break;
             }
         }
     }
