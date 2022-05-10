@@ -23,24 +23,20 @@ namespace Jatek
     /// </summary>
     public partial class MainWindow : Window
     {
-        GameController control;
+        GameController controller;
         JatekLogic logic;
         public MainWindow()
         {
             InitializeComponent();
-            logic = new JatekLogic();
-            display.SetUpModel(logic);
-            control = new GameController(logic);
+            JatekLogic logic = new JatekLogic();
+            display.SetupModel(logic);
+            controller = new GameController(logic);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+            //display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
             display.InvalidateVisual();
-        }
-
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
             DispatcherTimer dt = new DispatcherTimer();
             dt.Interval = TimeSpan.FromMilliseconds(100);
             dt.Tick += Dt_Tick;
@@ -51,9 +47,15 @@ namespace Jatek
             logic.MoveGameItems();
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+            display.InvalidateVisual();
+        }
+
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            control.KeyPressed(e.Key);
+            controller.KeyPressed(e.Key);
             display.InvalidateVisual();
         }
     }

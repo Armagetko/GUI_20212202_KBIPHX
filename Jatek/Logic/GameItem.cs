@@ -13,7 +13,6 @@ namespace Jatek.Logic
         public int ItemRadius { get; set; }
         public int SpeedX { get; set; }
         public int SpeedY { get; set; }
-        public int[] PenguinPosition { get; set; }
         public Size GameArea { get; set; }
         public Rectangle Rectangle
         {
@@ -28,7 +27,8 @@ namespace Jatek.Logic
         }
         public GameItem( Size gameArea, int itemRadius)
         {
-
+            GameArea = gameArea;
+            ItemRadius = itemRadius;
         }
         public bool Move()
         {

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Jatek.Controller;
 using Jatek.Logic;
+using static Jatek.Logic.JatekLogic;
 
 namespace Jatek.Controller
 {
@@ -22,16 +23,16 @@ namespace Jatek.Controller
             switch (key)
             {
                 case Key.Up:
-                    control.Move(JatekLogic.Directions.up);
+                    control.Move(Directions.up);
                     break;
                 case Key.Down:
-                    control.Move(JatekLogic.Directions.down);
+                    control.Move(Directions.down);
                     break;
                 case Key.Left:
-                    control.Move(JatekLogic.Directions.left);
+                    control.Move(Directions.left);
                     break;
                 case Key.Right:
-                    control.Move(JatekLogic.Directions.right);
+                    control.Move(Directions.right);
                     break;
                 case Key.Space:
                     control.Shoot();

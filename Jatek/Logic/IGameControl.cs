@@ -10,7 +10,6 @@ namespace Jatek.Logic
     public interface IGameControl
     {
         void Move(Directions direction);
-        void Turn(Directions direction);
         void Shoot();
     }
 }

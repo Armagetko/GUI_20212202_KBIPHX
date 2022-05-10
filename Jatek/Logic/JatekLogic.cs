@@ -8,33 +8,33 @@ using System.Threading.Tasks;
 
 namespace Jatek.Logic
 {
+    public enum Directions
+    {
+        up=0, left=1, down=2, right=3
+    }
+    public enum JatekElements
+    {
+        player, floor, garbage, hpfish, bulletfish,
+        ice, ice1, ice2, ice3, ice4, ice5,  seal
+    }
     public class JatekLogic : IGameControl, IGameModel
     {
-        public enum JatekElements
-        {
-            player, floor, garbage, hpfish, bulletfish, 
-            ice,ice1,ice2,ice3,ice4,ice5
-        }
-        public enum Directions
-        {
-            up=0, right=1, down=2, left=3
-        }
         private Queue<string> levels;
-        public event EventHandler Changed;
         public JatekElements[,] GameMatrix { get; set; }
-        public Penguin Penguin { get; set; }
         public List<Seal> Seals { get; set; }
-        public List<Bulletfish> Bulletfishes { get; set; }
+        public int Bulletfishes { get; set; }
+        public int lives { get; set; }
+        public Penguin Penguin { get; set; }
+        public int BulletNumber { get; set; }
         public List<Bullet> Bullets { get; set; }
-        Size gameArea;
+        public event EventHandler Changed;
 
         public JatekLogic()
         {
+
             levels = new Queue<string>();
-            Seals = new List<Seal>();
-            Bulletfishes = new List<Bulletfish>();
-            Bullets = new List<Bullet>();
-            var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"), "*.lvl");
+            var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"),
+                "*.lvl");
             foreach (var item in lvls)
             {
                 levels.Enqueue(item);
@@ -46,17 +46,17 @@ namespace Jatek.Logic
         {
             string[] lines = File.ReadAllLines(path);
             GameMatrix = new JatekElements[int.Parse(lines[1]), int.Parse(lines[0])];
-            gameArea = new Size(int.Parse(lines[0]), int.Parse(lines[1]));
-            Penguin = new Penguin(gameArea);
             for (int i = 0; i < GameMatrix.GetLength(0); i++)
             {
                 for (int j = 0; j < GameMatrix.GetLength(1); j++)
                 {
                     GameMatrix[i, j] = ConvertToEnum(lines[i + 2][j]);
+                    if (GameMatrix[i, j] == JatekElements.seal)
+                        Seals.Add(new Seal(i, j));
                 }
             }
-        }
 
+        }
         private JatekElements ConvertToEnum(char v)
         {
             switch (v)
@@ -69,9 +69,14 @@ namespace Jatek.Logic
                 case '4': return JatekElements.ice4;
                 case '5': return JatekElements.ice5;
                 case 'S': return JatekElements.garbage;
-                case 'H': return JatekElements.hpfish;
-                case 'L': return JatekElements.bulletfish;
+                case 'H':
+                    return JatekElements.hpfish;
+                case 'L':
+                    Bulletfishes++;
+                    return JatekElements.bulletfish;
                 case 'P': return JatekElements.player;
+                case 'o':
+                    return JatekElements.seal;
                 default:
                     return JatekElements.floor;
             }
@@ -118,9 +123,70 @@ namespace Jatek.Logic
                 GameMatrix[i, j] = JatekElements.player;
                 GameMatrix[old_i, old_j] = JatekElements.floor;
             }
+            else if (GameMatrix[i, j] == JatekElements.bulletfish)
+            {
+                Bulletfishes--;
+                BulletNumber++;
+                GameMatrix[i, j] = JatekElements.player;
+                GameMatrix[old_i, old_j] = JatekElements.floor;
+            }
+            else if (GameMatrix[i, j] == JatekElements.hpfish)
+            {
+                lives++;
+                GameMatrix[i, j] = JatekElements.player;
+                GameMatrix[old_i, old_j] = JatekElements.floor;
+            }
+            else if (GameMatrix[i, j] == JatekElements.garbage)
+            {
+                switch (direction)
+                {
+                    case Directions.up:
+                        if (i - 1 >= 0 && GameMatrix[i - 1, j] == JatekElements.floor)
+                        {
+                            GameMatrix[i - 1, j] = JatekElements.garbage;
+                            GameMatrix[i, j] = JatekElements.player;
+                            GameMatrix[old_i, old_j] = JatekElements.floor;
+                        }
+                        break;
+                    case Directions.down:
+                        if (i + 1 < GameMatrix.GetLength(0) && GameMatrix[i + 1, j] == JatekElements.floor)
+                        {
+                            GameMatrix[i + 1, j] = JatekElements.garbage;
+                            GameMatrix[i, j] = JatekElements.player;
+                            GameMatrix[old_i, old_j] = JatekElements.floor;
+                        }
+                        break;
+                    case Directions.left:
+                        if (j - 1 >= 0 && GameMatrix[i, j - 1] == JatekElements.floor)
+                        {
+                            GameMatrix[i, j-1] = JatekElements.garbage;
+                            GameMatrix[i, j] = JatekElements.player;
+                            GameMatrix[old_i, old_j] = JatekElements.floor;
+                        }
+                        break;
+                    case Directions.right:
+                        if (j + 1 < GameMatrix.GetLength(1) && GameMatrix[i, j+1] == JatekElements.floor)
+                        {
+                            GameMatrix[i, j+1] = JatekElements.garbage;
+                            GameMatrix[i, j] = JatekElements.player;
+                            GameMatrix[old_i, old_j] = JatekElements.floor;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (Bulletfishes == 0)
+            {
+                if (levels.Count > 0)
+                {
+                    LoadNext(levels.Dequeue());
+                }
+
+            }
 
         }
-        public  int[] WhereAmI()
+        public int[] WhereAmI()
         {
             for (int i = 0; i < GameMatrix.GetLength(0); i++)
             {
@@ -136,23 +202,14 @@ namespace Jatek.Logic
         }
         public void MoveGameItems()
         {
-            //for (int i = 0; i < Bullets.Count; i++)
-            //{
-            //    bool inside=Bullets[i].M
-            //}
+            foreach (var item in Seals)
+            {
+
+            }
         }
         public void Shoot()
         {
-            throw new NotImplementedException();
-        }
-        public void Turn(Directions direction)
-        {
-            int a = (int)Penguin.direction;
-            while (a <= (int)direction)
-                a++;
-            while (a >= (int)direction)
-                a--;
-            Penguin.Angle = a * 90;
+            Bullets.Add(new Bullet());
         }
     }
 }
