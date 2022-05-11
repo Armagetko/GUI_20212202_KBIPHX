@@ -46,6 +46,7 @@ namespace Jatek
         }
         private void Dt_Tick(object sender, EventArgs e)
         {
+            BulletLabel.Content = logic.BulletNumber.ToString();
             logic.MoveGameItems();
         }
 
@@ -60,5 +61,6 @@ namespace Jatek
             controller.KeyPressed(e.Key);
             //display.InvalidateVisual();
         }
+
     }
 }

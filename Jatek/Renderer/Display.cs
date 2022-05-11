@@ -29,6 +29,13 @@ namespace Jatek.Renderer
         Brush bulletBrush;
         ImageBrush bgBrush;
         Size size;
+
+        public int bullets() { return model.BulletNumber; }
+        public IObservable<int> helo;
+        public int lives;
+
+
+
         public void Resize(Size size)
         {
             this.size = size;
@@ -74,6 +81,7 @@ namespace Jatek.Renderer
                 UriKind.RelativeOrAbsolute)));
             bulletBrush = Brushes.White;
             this.model = model;
+            this.lives = model.Lives;
             this.model.Changed+=(sender,args) => this.InvalidateVisual();
         }
 
@@ -140,10 +148,6 @@ namespace Jatek.Renderer
                     }
                 }
             }
-            ;
-
-
-
 
             #region elozo
             //if (model != null && size.Width > 50 && size.Height > 50)

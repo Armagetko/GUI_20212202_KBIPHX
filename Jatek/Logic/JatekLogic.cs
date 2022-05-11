@@ -22,8 +22,8 @@ namespace Jatek.Logic
         private Queue<string> levels;
         public JatekElements[,] GameMatrix { get; set; }
         public List<Seal> Seals { get; set; }
-        public int Bulletfishes { get; set; }
-        public int lives { get; set; }
+        public int BulletfishesOnMap { get; set; }
+        public int Lives { get; set; }
         public Penguin Penguin { get; set; }
         public int BulletNumber { get; set; }
         public List<Bullet> Bullets { get; set; }
@@ -33,6 +33,7 @@ namespace Jatek.Logic
         {
 
             levels = new Queue<string>();
+            Bullets = new List<Bullet>();
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"),
                 "*.lvl");
             foreach (var item in lvls)
@@ -74,7 +75,7 @@ namespace Jatek.Logic
                 case 'H':
                     return JatekElements.hpfish;
                 case 'L':
-                    Bulletfishes++;
+                    BulletfishesOnMap++;
                     return JatekElements.bulletfish;
                 case 'P': return JatekElements.player;
                 case 'o':
@@ -86,6 +87,7 @@ namespace Jatek.Logic
 
         public void Move(Directions direction)
         {
+            BulletNumber = Bullets.Count();
             var coords = WhereAmI();
             int i = coords[0];
             int j = coords[1];
@@ -127,14 +129,14 @@ namespace Jatek.Logic
             }
             else if (GameMatrix[i, j] == JatekElements.bulletfish)
             {
-                Bulletfishes--;
+                BulletfishesOnMap--;
                 BulletNumber++;
                 GameMatrix[i, j] = JatekElements.player;
                 GameMatrix[old_i, old_j] = JatekElements.floor;
             }
             else if (GameMatrix[i, j] == JatekElements.hpfish)
             {
-                lives++;
+                Lives++;
                 GameMatrix[i, j] = JatekElements.player;
                 GameMatrix[old_i, old_j] = JatekElements.floor;
             }
@@ -178,7 +180,7 @@ namespace Jatek.Logic
                         break;
                 }
             }
-            if (Bulletfishes == 0)
+            if (BulletfishesOnMap == 0)
             {
                 if (levels.Count > 0)
                 {
