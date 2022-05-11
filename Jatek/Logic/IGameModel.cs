@@ -13,10 +13,7 @@ namespace Jatek.Logic
         JatekElements[,] GameMatrix { get; set; }
         List<Seal> Seals { get; set; }
         int Bulletfishes { get; set; }
-        int BulletNumber { get; set; }
-        public List<Bullet> Bullets { get; set; }
-        int lives { get; set; }
 
-        //event EventHandler Changed;
+        event EventHandler Changed;
     }
 }

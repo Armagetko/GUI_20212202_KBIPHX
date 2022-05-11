@@ -8,14 +8,16 @@ namespace Jatek.Logic
 {
     public class Seal
     {
-        public int DiffFromStart { get; set; }
-        public int prevPlace { get { return DiffFromStart - 1; } }
-        private int[] position;
-        public int[] Position { get { return position; } }
+        public static Random r;
+        public int[] Distances { get; }
+        public int[] Position { get; set; }
+        public int CurrentDistance { get; set; }
         public Seal(int x, int y)
         {
-            DiffFromStart = 0;
-            position = new int[] { x,  y};
+            r = new Random();
+            this.Distances = new int[] { -1, -1, 1, 1, 1, 1, -1,-1 }; //[8]
+            Position = new int[] { x,  y};
+            CurrentDistance = r.Next(0,7);
         }
     }
 }

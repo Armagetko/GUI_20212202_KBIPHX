@@ -74,6 +74,7 @@ namespace Jatek.Renderer
                 UriKind.RelativeOrAbsolute)));
             bulletBrush = Brushes.White;
             this.model = model;
+            this.model.Changed+=(sender,args) => this.InvalidateVisual();
         }
 
         protected override void OnRender(DrawingContext drawingContext)
@@ -139,7 +140,7 @@ namespace Jatek.Renderer
                     }
                 }
             }
-
+            ;
 
 
 

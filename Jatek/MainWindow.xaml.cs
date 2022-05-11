@@ -28,15 +28,17 @@ namespace Jatek
         public MainWindow()
         {
             InitializeComponent();
-            JatekLogic logic = new JatekLogic();
-            display.SetupModel(logic);
-            controller = new GameController(logic);
         }
 
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
-            display.InvalidateVisual();
+            ;
+            logic = new JatekLogic();
+            logic.SetupMap();
+            controller = new GameController(logic);
+            display.SetupModel(logic);
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+
             DispatcherTimer dt = new DispatcherTimer();
             dt.Interval = TimeSpan.FromMilliseconds(100);
             dt.Tick += Dt_Tick;
@@ -47,16 +49,16 @@ namespace Jatek
             logic.MoveGameItems();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
-            display.InvalidateVisual();
+            //display.InvalidateVisual();
         }
-
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             controller.KeyPressed(e.Key);
-            display.InvalidateVisual();
+            //display.InvalidateVisual();
         }
     }
 }

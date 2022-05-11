@@ -29,7 +29,7 @@ namespace Jatek.Logic
         public List<Bullet> Bullets { get; set; }
         public event EventHandler Changed;
 
-        public JatekLogic()
+        public void SetupMap()
         {
 
             levels = new Queue<string>();
@@ -40,10 +40,12 @@ namespace Jatek.Logic
                 levels.Enqueue(item);
             }
             LoadNext(levels.Dequeue());
+
         }
 
         private void LoadNext(string path)
         {
+            Seals = new List<Seal>();
             string[] lines = File.ReadAllLines(path);
             GameMatrix = new JatekElements[int.Parse(lines[1]), int.Parse(lines[0])];
             for (int i = 0; i < GameMatrix.GetLength(0); i++)
@@ -184,6 +186,7 @@ namespace Jatek.Logic
                 }
 
             }
+            Changed?.Invoke(this, null);
 
         }
         public int[] WhereAmI()
@@ -204,12 +207,27 @@ namespace Jatek.Logic
         {
             foreach (var item in Seals)
             {
-
+                if (item.CurrentDistance < 7)
+                {
+                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
+                    item.CurrentDistance++;
+                    item.Position[1] += item.Distances[item.CurrentDistance];
+                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
+                }
+                else
+                {
+                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
+                    item.Position[1] += item.Distances[7];
+                    item.CurrentDistance=0;
+                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
+                }
             }
+            Changed?.Invoke(this, null);
         }
         public void Shoot()
         {
             Bullets.Add(new Bullet());
+            Changed?.Invoke(this, null);
         }
     }
 }
