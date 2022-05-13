@@ -34,6 +34,7 @@ namespace Jatek.Logic
 
             levels = new Queue<string>();
             Bullets = new List<Bullet>();
+            Penguin = new Penguin();
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"),
                 "*.lvl");
             foreach (var item in lvls)
@@ -188,6 +189,7 @@ namespace Jatek.Logic
                 }
 
             }
+            Penguin.NewCenter(new Point(i, j));
             Changed?.Invoke(this, null);
 
         }
@@ -230,6 +232,11 @@ namespace Jatek.Logic
         {
             Bullets.Add(new Bullet());
             Changed?.Invoke(this, null);
+        }
+
+        public void Rotate(int uj)
+        {
+            Penguin.Rotate(uj);
         }
     }
 }

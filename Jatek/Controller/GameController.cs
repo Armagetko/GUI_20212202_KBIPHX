@@ -23,15 +23,19 @@ namespace Jatek.Controller
             switch (key)
             {
                 case Key.Up:
+                    control.Rotate(0);
                     control.Move(Directions.up);
                     break;
                 case Key.Down:
+                    control.Rotate(2);
                     control.Move(Directions.down);
                     break;
                 case Key.Left:
+                    control.Rotate(1);
                     control.Move(Directions.left);
                     break;
                 case Key.Right:
+                    control.Rotate(3);
                     control.Move(Directions.right);
                     break;
                 case Key.Space:

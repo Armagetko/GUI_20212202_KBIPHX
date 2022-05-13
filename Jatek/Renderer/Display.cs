@@ -61,9 +61,6 @@ namespace Jatek.Renderer
             ice5Brush = new ImageBrush(new BitmapImage
                 (new Uri(Path.Combine("Images", "ice5.png"),
                 UriKind.RelativeOrAbsolute)));
-            penguinBrush = new ImageBrush(new BitmapImage
-                (new Uri(Path.Combine("Images", "penguin3.png"),
-            UriKind.RelativeOrAbsolute)));
             garbageBrush = new ImageBrush(new BitmapImage
                 (new Uri(Path.Combine("Images", "garbage.png"),
                 UriKind.RelativeOrAbsolute)));
@@ -80,6 +77,11 @@ namespace Jatek.Renderer
                 (new Uri(Path.Combine("Images", "foka.png"),
                 UriKind.RelativeOrAbsolute)));
             bulletBrush = Brushes.White;
+
+            penguinBrush = new ImageBrush(new BitmapImage
+                (new Uri(Path.Combine("Images", "penguin3.png"),
+            UriKind.RelativeOrAbsolute)));
+
             this.model = model;
             this.lives = model.Lives;
             this.model.Changed+=(sender,args) => this.InvalidateVisual();
@@ -105,7 +107,9 @@ namespace Jatek.Renderer
                         switch (model.GameMatrix[i, j])
                         {
                             case JatekElements.player:
-                                brush = penguinBrush;
+                                brush = new ImageBrush(new BitmapImage
+                                        (new Uri(Path.Combine("Images", $"penguin{(int)model.Penguin.direction}.png"),
+                                         UriKind.RelativeOrAbsolute)));
                                 break;
                             case JatekElements.ice:
                                 brush = iceBrush;
@@ -148,54 +152,6 @@ namespace Jatek.Renderer
                     }
                 }
             }
-
-            #region elozo
-            //if (model != null && size.Width > 50 && size.Height > 50)
-            //{
-            //    for (int i = 0; i < model.GameMatrix.GetLength(0); i++)
-            //    {
-            //        for (int j = 0; j < model.GameMatrix.GetLength(1); j++)
-            //        {
-            //            ImageBrush brush = new ImageBrush();
-            //            switch (model.GameMatrix[i, j])
-            //            {
-            //                case JatekLogic.JatekElements.player:
-            //                    brush = penguinBrush;
-            //                    break;
-            //                case JatekLogic.JatekElements.ice:
-            //                    brush = iceBrush;
-            //                    break;
-            //                case JatekLogic.JatekElements.ice1:
-            //                    brush = ice1Brush;
-            //                    break;
-            //                case JatekLogic.JatekElements.ice2:
-            //                    brush = ice2Brush;
-            //                    break;
-            //                case JatekLogic.JatekElements.ice3:
-            //                    brush = ice3Brush;
-            //                    break;
-            //                case JatekLogic.JatekElements.ice4:
-            //                    brush = ice4Brush;
-            //                    break;
-            //                case JatekLogic.JatekElements.ice5:
-            //                    brush = ice5Brush;
-            //                    break;
-            //                case JatekLogic.JatekElements.garbage:
-            //                    brush = garbageBrush;
-            //                    break;
-            //                case JatekLogic.JatekElements.bulletfish:
-            //                    brush = bulletfishBrush;
-            //                    break;
-            //                case JatekLogic.JatekElements.hpfish:
-            //                    brush = hpfishBrush;
-            //                    break;
-            //                default:
-            //                    break;
-            //            }
-            //        }
-            //    }
-            //}
-            #endregion
 
         }
     }
