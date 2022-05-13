@@ -15,7 +15,7 @@ namespace Jatek.Logic
     public enum JatekElements
     {
         player, floor, garbage, hpfish, bulletfish,
-        ice, ice1, ice2, ice3, ice4, ice5,  seal
+        ice, ice1, ice2, ice3, ice4, ice5,  seal, bullet
     }
     public class JatekLogic : IGameControl, IGameModel
     {
@@ -209,6 +209,7 @@ namespace Jatek.Logic
         }
         public void MoveGameItems()
         {
+            //fókák
             foreach (var item in Seals)
             {
                 if (item.CurrentDistance < 7)
@@ -226,11 +227,58 @@ namespace Jatek.Logic
                     GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
                 }
             }
+
+            foreach (var item in Bullets)
+            {
+                switch (item.direction)
+                {
+                    case Directions.up:
+                        if (item.Origin[0] - 1 >= 0)
+                        {
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
+                            item.newOrig(item.Origin[0] - 1, item.Origin[1]);
+                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                        }
+                        break;
+                    case Directions.left:
+                        if (item.Origin[1] - 1 >= 0)
+                        {
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
+                            item.newOrig(item.Origin[0], item.Origin[1]-1);
+                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                        }
+                        break;
+                    case Directions.down:
+                        if (item.Origin[0] + 1 < GameMatrix.GetLength(0))
+                        {
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
+                            item.newOrig(item.Origin[0]+1, item.Origin[1] );
+                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                        }
+                        break;
+                    case Directions.right:
+                        if (item.Origin[1] + 1 < GameMatrix.GetLength(1))
+                        {
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
+                            item.newOrig(item.Origin[0], item.Origin[1]+1);
+                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             Changed?.Invoke(this, null);
         }
         public void Shoot()
         {
-            Bullets.Add(new Bullet());
+            var orig = WhereAmI();
+            Bullets.Add(new Bullet(orig,this.Penguin.direction));
             Changed?.Invoke(this, null);
         }
 

@@ -26,7 +26,7 @@ namespace Jatek.Renderer
         ImageBrush bulletfishBrush;
         ImageBrush hpfishBrush;
         ImageBrush sealBrush;
-        Brush bulletBrush;
+        ImageBrush bulletBrush;
         ImageBrush bgBrush;
         Size size;
 
@@ -76,7 +76,9 @@ namespace Jatek.Renderer
             sealBrush = new ImageBrush(new BitmapImage
                 (new Uri(Path.Combine("Images", "foka.png"),
                 UriKind.RelativeOrAbsolute)));
-            bulletBrush = Brushes.White;
+            bulletBrush = new ImageBrush(new BitmapImage
+                (new Uri(Path.Combine("Images", "bullet.png"),
+                UriKind.RelativeOrAbsolute)));
 
             penguinBrush = new ImageBrush(new BitmapImage
                 (new Uri(Path.Combine("Images", "penguin3.png"),
@@ -140,6 +142,9 @@ namespace Jatek.Renderer
                                 break;
                             case JatekElements.seal:
                                 brush = sealBrush;
+                                break;
+                            case JatekElements.bullet:
+                                brush = bulletBrush;
                                 break;
                             default:
                                 break;
