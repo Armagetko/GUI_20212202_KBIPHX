@@ -47,7 +47,7 @@ namespace Jatek
         private void Dt_Tick(object sender, EventArgs e)
         {
             logic.MoveGameItems();
-            BulletLabel.Content = $"Bullets: {logic.BulletNumber}";
+            BulletLabel.Content = $"x{logic.BulletNumber}";
             
         }
 
