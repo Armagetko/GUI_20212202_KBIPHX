@@ -10,12 +10,12 @@ namespace Jatek.Logic
 {
     public enum Directions
     {
-        up=0, left=1, down=2, right=3
+        up = 0, left = 1, down = 2, right = 3
     }
     public enum JatekElements
     {
         player, floor, garbage, hpfish, bulletfish,
-        ice, ice1, ice2, ice3, ice4, ice5,  seal, bullet
+        ice, ice1, ice2, ice3, ice4, ice5, seal, bullet
     }
     public class JatekLogic : IGameControl, IGameModel
     {
@@ -35,6 +35,7 @@ namespace Jatek.Logic
             levels = new Queue<string>();
             Bullets = new List<Bullet>();
             Penguin = new Penguin();
+            BulletNumber = 3;
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"),
                 "*.lvl");
             foreach (var item in lvls)
@@ -88,7 +89,6 @@ namespace Jatek.Logic
 
         public void Move(Directions direction)
         {
-            BulletNumber = Bullets.Count();
             var coords = WhereAmI();
             int i = coords[0];
             int j = coords[1];
@@ -164,15 +164,15 @@ namespace Jatek.Logic
                     case Directions.left:
                         if (j - 1 >= 0 && GameMatrix[i, j - 1] == JatekElements.floor)
                         {
-                            GameMatrix[i, j-1] = JatekElements.garbage;
+                            GameMatrix[i, j - 1] = JatekElements.garbage;
                             GameMatrix[i, j] = JatekElements.player;
                             GameMatrix[old_i, old_j] = JatekElements.floor;
                         }
                         break;
                     case Directions.right:
-                        if (j + 1 < GameMatrix.GetLength(1) && GameMatrix[i, j+1] == JatekElements.floor)
+                        if (j + 1 < GameMatrix.GetLength(1) && GameMatrix[i, j + 1] == JatekElements.floor)
                         {
-                            GameMatrix[i, j+1] = JatekElements.garbage;
+                            GameMatrix[i, j + 1] = JatekElements.garbage;
                             GameMatrix[i, j] = JatekElements.player;
                             GameMatrix[old_i, old_j] = JatekElements.floor;
                         }
@@ -212,22 +212,31 @@ namespace Jatek.Logic
             //fókák
             foreach (var item in Seals)
             {
-                if (item.CurrentDistance < 7)
+                item.Killed = CheckBullet(item.Position[0], item.Position[1] + item.Distances[item.CurrentDistance]);
+                if (item.Killed == false)
                 {
-                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
-                    item.CurrentDistance++;
-                    item.Position[1] += item.Distances[item.CurrentDistance];
-                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
+                    if (item.CurrentDistance < 7)
+                    {
+                        GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
+                        item.CurrentDistance++;
+                        item.Position[1] += item.Distances[item.CurrentDistance];
+                        GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
+                    }
+                    else
+                    {
+                        GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
+                        item.Position[1] += item.Distances[7];
+                        item.CurrentDistance = 0;
+                        GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
+                    }
+                    item.Killed = CheckBullet(item.Position[0], item.Position[1] + item.Distances[item.CurrentDistance]);
                 }
-                else
-                {
+                if (item.Killed == true)
                     GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
-                    item.Position[1] += item.Distances[7];
-                    item.CurrentDistance=0;
-                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
-                }
             }
+            Seals.RemoveAll(t => t.Killed == true);
 
+            //lövedékek
             foreach (var item in Bullets)
             {
                 switch (item.direction)
@@ -238,7 +247,15 @@ namespace Jatek.Logic
                             if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
                                 GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
                             item.newOrig(item.Origin[0] - 1, item.Origin[1]);
-                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.floor)
+                                item.CollisionHappened = true;
+                            else if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.seal)
+                            {
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                                item.CollisionHappened = true;
+                            }
+                            else
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
                         }
                         break;
                     case Directions.left:
@@ -246,8 +263,16 @@ namespace Jatek.Logic
                         {
                             if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
                                 GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
-                            item.newOrig(item.Origin[0], item.Origin[1]-1);
-                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                            item.newOrig(item.Origin[0], item.Origin[1] - 1);
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.floor)
+                                item.CollisionHappened = true;
+                            else if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.seal)
+                            {
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                                item.CollisionHappened = true;
+                            }
+                            else
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
                         }
                         break;
                     case Directions.down:
@@ -255,8 +280,16 @@ namespace Jatek.Logic
                         {
                             if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
                                 GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
-                            item.newOrig(item.Origin[0]+1, item.Origin[1] );
-                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                            item.newOrig(item.Origin[0] + 1, item.Origin[1]);
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.floor)
+                                item.CollisionHappened = true;
+                            else if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.seal)
+                            {
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                                item.CollisionHappened = true;
+                            }
+                            else
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
                         }
                         break;
                     case Directions.right:
@@ -264,8 +297,16 @@ namespace Jatek.Logic
                         {
                             if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
                                 GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
-                            item.newOrig(item.Origin[0], item.Origin[1]+1);
-                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                            item.newOrig(item.Origin[0], item.Origin[1] + 1);
+                            if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.floor)
+                                item.CollisionHappened = true;
+                            else if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.seal)
+                            {
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
+                                item.CollisionHappened = true;
+                            }
+                            else
+                                GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bullet;
                         }
                         break;
                     default:
@@ -273,18 +314,30 @@ namespace Jatek.Logic
                 }
             }
 
+
+
+            Bullets.RemoveAll(t => t.CollisionHappened == true);
+
             Changed?.Invoke(this, null);
         }
         public void Shoot()
         {
-            var orig = WhereAmI();
-            Bullets.Add(new Bullet(orig,this.Penguin.direction));
-            Changed?.Invoke(this, null);
+            if (BulletNumber > 0)
+            {
+                var orig = WhereAmI();
+                Bullets.Add(new Bullet(orig, this.Penguin.direction));
+                Changed?.Invoke(this, null);
+                BulletNumber--;
+            }
         }
 
         public void Rotate(int uj)
         {
             Penguin.Rotate(uj);
+        }
+        private bool CheckBullet(int i, int j)
+        {
+            return GameMatrix[i, j] == JatekElements.bullet;
         }
     }
 }

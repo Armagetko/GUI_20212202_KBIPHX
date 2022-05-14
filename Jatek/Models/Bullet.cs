@@ -11,6 +11,7 @@ namespace Jatek.Logic
     {
         public int[] Origin { get; set; }
         public Directions direction { get; set; }
+        public bool CollisionHappened { get; set; }
         public Bullet(int[] orig, Directions direction)
         {
             Origin = orig;

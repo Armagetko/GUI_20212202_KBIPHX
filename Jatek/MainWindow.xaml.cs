@@ -40,14 +40,15 @@ namespace Jatek
             display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
 
             DispatcherTimer dt = new DispatcherTimer();
-            dt.Interval = TimeSpan.FromMilliseconds(100);
+            dt.Interval = TimeSpan.FromMilliseconds(75);
             dt.Tick += Dt_Tick;
             dt.Start();
         }
         private void Dt_Tick(object sender, EventArgs e)
         {
-            BulletLabel.Content = logic.BulletNumber.ToString();
             logic.MoveGameItems();
+            BulletLabel.Content = $"Bullets: {logic.BulletNumber}";
+            
         }
 
 

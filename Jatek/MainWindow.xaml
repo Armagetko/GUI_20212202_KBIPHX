@@ -12,10 +12,10 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="6*"/>
         </Grid.ColumnDefinitions>
-        <StackPanel>
-            <Label Name="BulletLabel" Height="60" Padding="10" Margin="10" FontSize="40"/>
-        </StackPanel>
         <renderer:Display x:Name="display" Grid.ColumnSpan="2"/>
+        <StackPanel>
+            <Label Name="BulletLabel" Height="62"  Margin="20,5,0,0" FontSize="25" FontFamily="Unispace"/>
+        </StackPanel>
 
     </Grid>
 </Window>
