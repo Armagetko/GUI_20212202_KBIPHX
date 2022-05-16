@@ -31,7 +31,6 @@ namespace Jatek.Renderer
         Size size;
 
         public int bullets() { return model.BulletNumber; }
-        public IObservable<int> helo;
         public int lives;
 
 
@@ -86,6 +85,7 @@ namespace Jatek.Renderer
 
             this.model = model;
             this.lives = model.Lives;
+            this.model.LifeLost += (sender, args) => this.InvalidateVisual();
             this.model.Changed+=(sender,args) => this.InvalidateVisual();
         }
 

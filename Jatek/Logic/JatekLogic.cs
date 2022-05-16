@@ -29,6 +29,10 @@ namespace Jatek.Logic
         public int BulletNumber { get; set; }
         public List<Bullet> Bullets { get; set; }
         public event EventHandler Changed;
+        public event EventHandler LifeLost;
+        public event EventHandler GameOver;
+        public event EventHandler GameWon;
+        private KeyValuePair<string, int> SavedStats { get; set; }
 
         public void SetupMap()
         {
@@ -47,9 +51,19 @@ namespace Jatek.Logic
             LoadNext(levels.Dequeue());
 
         }
-
+        public void RestartLevel()
+        {
+            Lives--;
+            BulletNumber = SavedStats.Value;
+            Seals.Clear();
+            Seals = null;
+            BulletfishesOnMap = 0;
+            LoadNext(SavedStats.Key);
+            Changed?.Invoke(this, null);
+        }
         private void LoadNext(string path)
         {
+            SavedStats = new KeyValuePair<string, int>(path, BulletNumber);
             Seals = new List<Seal>();
             string[] lines = File.ReadAllLines(path);
             GameMatrix = new JatekElements[int.Parse(lines[1]), int.Parse(lines[0])];
@@ -143,6 +157,13 @@ namespace Jatek.Logic
                 GameMatrix[i, j] = JatekElements.player;
                 GameMatrix[old_i, old_j] = JatekElements.floor;
             }
+            else if (GameMatrix[i, j] == JatekElements.seal)
+            {
+                if (Lives > 0)
+                    LifeLost?.Invoke(this, null);
+                else
+                    GameOver?.Invoke(this, null);
+            }
             else if (GameMatrix[i, j] == JatekElements.garbage)
             {
                 switch (direction)
@@ -186,10 +207,9 @@ namespace Jatek.Logic
             if (BulletfishesOnMap == 0)
             {
                 if (levels.Count > 0)
-                {
                     LoadNext(levels.Dequeue());
-                }
-
+                else
+                    GameWon?.Invoke(this, null);
             }
             Penguin.NewCenter(new Point(i, j));
             Changed?.Invoke(this, null);
@@ -216,6 +236,7 @@ namespace Jatek.Logic
             {
                 int i = item.Position[0];
                 int j = item.Position[1];
+                var prevElement = new JatekElements();
                 var newPos = SealGetNextPosition(i, j, item.currentDirection, item.KeptSameDirection);
                 if (newPos == item.currentDirection)
                     item.KeptSameDirection++;
@@ -226,26 +247,38 @@ namespace Jatek.Logic
                 {
                     case Directions.up:
                         GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i - 1, j];
                         GameMatrix[i - 1, j] = JatekElements.seal;
                         i--;
                         break;
                     case Directions.left:
                         GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i, j - 1];
                         GameMatrix[i, j - 1] = JatekElements.seal;
                         j--;
                         break;
                     case Directions.down:
                         GameMatrix[i, j] = JatekElements.floor;
+                        prevElement=GameMatrix[i + 1, j];
                         GameMatrix[i + 1, j] = JatekElements.seal;
                         i++;
                         break;
                     case Directions.right:
                         GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i, j + 1];
                         GameMatrix[i, j + 1] = JatekElements.seal;
                         j++;
                         break;
                 }
                 item.SealMovedTo(i, j);
+                if (prevElement == JatekElements.player)
+                {
+                    if (Lives > 0)
+                        LifeLost?.Invoke(this, null);
+                    else
+                        GameOver?.Invoke(this,null);
+                    break;
+                }
                 item.Killed = CheckBullet(item.Position[0], item.Position[1]);
 
             }

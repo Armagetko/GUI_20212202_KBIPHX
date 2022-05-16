@@ -15,6 +15,9 @@ namespace Jatek.Logic
         int BulletNumber { get; set; }
 
         event EventHandler Changed;
+        public event EventHandler LifeLost;
+        public event EventHandler GameOver;
+        public event EventHandler GameWon;
         int Lives { get; set; }
     }
 }

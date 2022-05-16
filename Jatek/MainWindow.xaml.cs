@@ -34,6 +34,9 @@ namespace Jatek
         {
             logic = new JatekLogic();
             logic.SetupMap();
+            logic.GameOver += Logic_GameOver;
+            logic.LifeLost += Logic_LifeLost;
+            logic.GameWon += Logic_GameWon;
             controller = new GameController(logic);
             display.SetupModel(logic);
             display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
@@ -60,15 +63,36 @@ namespace Jatek
             logic.MoveSeals();
         }
 
+        private void Logic_LifeLost(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("Oops, you died");
+            logic.RestartLevel();
+        }
+
+        private void Logic_GameOver(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show("Game Over!");
+            if (result == MessageBoxResult.OK)
+            {
+                this.Close();
+            }
+        }
+        private void Logic_GameWon(object sender, EventArgs e)
+        {
+            var result = MessageBox.Show($"YOU WON!\n\nPOINTS: {logic.BulletNumber+logic.Lives*2}");
+            if (result == MessageBoxResult.OK)
+            {
+                this.Close();
+            }
+        }
+
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
-            //display.InvalidateVisual();
         }
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
             controller.KeyPressed(e.Key);
-            //display.InvalidateVisual();
         }
 
     }
