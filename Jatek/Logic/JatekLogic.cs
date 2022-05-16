@@ -14,8 +14,8 @@ namespace Jatek.Logic
     }
     public enum JatekElements
     {
-        player, floor, garbage, hpfish, bulletfish,
-        ice, ice1, ice2, ice3, ice4, ice5, seal, bullet
+        bullet,player, floor, bulletfish, garbage, hpfish, 
+        ice, ice1, ice2, ice3, ice4, ice5, seal
     }
     public class JatekLogic : IGameControl, IGameModel
     {
@@ -252,40 +252,6 @@ namespace Jatek.Logic
             Seals.RemoveAll(t => t.Killed == true);
 
             Changed?.Invoke(this, null);
-
-
-
-            #region DumbSealMovement
-            //foreach (var item in Seals)
-            //{
-            //    item.Killed = CheckBullet(item.Position[0], item.Position[1] + item.Distances[item.CurrentDistance]);
-            //    if (item.Killed == false)
-            //    {
-            //        if (item.CurrentDistance < 7)
-            //        {
-            //            GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
-            //            item.CurrentDistance++;
-            //            item.Position[1] += item.Distances[item.CurrentDistance];
-            //            GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
-            //        }
-            //        else
-            //        {
-            //            GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
-            //            item.Position[1] += item.Distances[7];
-            //            item.CurrentDistance = 0;
-            //            GameMatrix[item.Position[0], item.Position[1]] = JatekElements.seal;
-            //        }
-            //        item.Killed = CheckBullet(item.Position[0], item.Position[1] + item.Distances[item.CurrentDistance]);
-            //    }
-            //    if (item.Killed == true)
-            //    {
-            //        GameMatrix[item.Position[0], item.Position[1]] = JatekElements.bulletfish;
-            //        BulletfishesOnMap++;
-            //    }
-            //}
-            //Seals.RemoveAll(t => t.Killed == true);
-            #endregion
-
         }
         public void MoveBullets()
         {
@@ -349,28 +315,21 @@ namespace Jatek.Logic
         private Directions SealGetNextPosition(int i, int j, Directions prevDirection, int keptSameDirection)
         {
             List<int> possibleDirections = new List<int>();
-            if (i - 1 > 0 && GameMatrix[i - 1, j] == JatekElements.floor
-                || i - 1 > 0 && GameMatrix[i - 1, j] == JatekElements.bullet)
+
+            if (i - 1 > 0 && (int)GameMatrix[i - 1, j] <=2)
                 possibleDirections.Add(0);
-
-            if (i + 1 < GameMatrix.GetLength(0) && GameMatrix[i + 1, j] == JatekElements.floor
-                || i + 1 < GameMatrix.GetLength(0) && GameMatrix[i + 1, j] == JatekElements.bullet)
+            if (i + 1 < GameMatrix.GetLength(0) && (int)GameMatrix[i + 1, j] <=2)
                 possibleDirections.Add(2);
-
-            if (j - 1 > 0 && GameMatrix[i, j - 1] == JatekElements.floor
-                || j - 1 > 0 && GameMatrix[i, j - 1] == JatekElements.bullet)
+            if (j - 1 > 0 && (int)GameMatrix[i, j - 1] <=2)
                 possibleDirections.Add(1);
-
-            if (j + 1 < GameMatrix.GetLength(1) && GameMatrix[i, j + 1] == JatekElements.floor
-                || j + 1 < GameMatrix.GetLength(1) && GameMatrix[i, j + 1] == JatekElements.bullet)
+            if (j + 1 < GameMatrix.GetLength(1) && (int)GameMatrix[i, j + 1] <=2)
                 possibleDirections.Add(3);
+
             var selectedPos = r.Next(0, 4);
             if (keptSameDirection < 8)
                 selectedPos = (int)prevDirection;
             while (!possibleDirections.Contains(selectedPos))
-            {
                 selectedPos = r.Next(0, 4);
-            }
             return (Directions)selectedPos;
         }
         public void Shoot()
