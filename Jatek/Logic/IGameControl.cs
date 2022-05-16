@@ -13,5 +13,6 @@ namespace Jatek.Logic
         void Move(Directions direction);
         void Rotate(int uj);
         void Shoot();
+        void PauseGame();
     }
 }

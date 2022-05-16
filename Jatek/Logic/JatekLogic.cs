@@ -14,7 +14,7 @@ namespace Jatek.Logic
     }
     public enum JatekElements
     {
-        bullet,player, floor, bulletfish, garbage, hpfish, 
+        bullet, player, floor, bulletfish, garbage, hpfish,
         ice, ice1, ice2, ice3, ice4, ice5, seal
     }
     public class JatekLogic : IGameControl, IGameModel
@@ -32,21 +32,22 @@ namespace Jatek.Logic
         public event EventHandler LifeLost;
         public event EventHandler GameOver;
         public event EventHandler GameWon;
+        public event EventHandler GamePaused;
         //külön ablak a játék kezdete előtt
         //nehézségi szintek
         //játék mentés és betöltés
         //fóka léphessen halra, ha meghal dobja vissza, de eredetileg nem dob halat
         private KeyValuePair<string, int> SavedStats { get; set; }
 
-        public void SetupMap()
+        public void SetupMap(int diff)
         {
             r = new Random();
             levels = new Queue<string>();
             Bullets = new List<Bullet>();
             Penguin = new Penguin();
-            BulletNumber = 100;
-            Lives = 3;
-            var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"),
+            BulletNumber = 0;
+            Lives = diff;
+            var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), $"Levels{diff}"),
                 "*.lvl");
             foreach (var item in lvls)
             {
@@ -263,7 +264,7 @@ namespace Jatek.Logic
                         break;
                     case Directions.down:
                         GameMatrix[i, j] = JatekElements.floor;
-                        prevElement=GameMatrix[i + 1, j];
+                        prevElement = GameMatrix[i + 1, j];
                         GameMatrix[i + 1, j] = JatekElements.seal;
                         i++;
                         break;
@@ -274,16 +275,20 @@ namespace Jatek.Logic
                         j++;
                         break;
                 }
-                item.SealMovedTo(i, j);
-                if (prevElement == JatekElements.player)
-                {
-                    if (Lives > 0)
-                        LifeLost?.Invoke(this, null);
-                    else
-                        GameOver?.Invoke(this,null);
-                    break;
-                }
                 item.Killed = CheckBullet(item.Position[0], item.Position[1]);
+                if (item.Killed == false)
+                {
+                    item.SealMovedTo(i, j);
+                    item.Killed = CheckBullet(item.Position[0], item.Position[1]);
+                    if (prevElement == JatekElements.player)
+                    {
+                        if (Lives > 0)
+                            LifeLost?.Invoke(this, null);
+                        else
+                            GameOver?.Invoke(this, null);
+                        break;
+                    }
+                }
 
             }
             Seals.RemoveAll(t => t.Killed == true);
@@ -353,13 +358,13 @@ namespace Jatek.Logic
         {
             List<int> possibleDirections = new List<int>();
 
-            if (i - 1 > 0 && (int)GameMatrix[i - 1, j] <=2)
+            if (i - 1 > 0 && (int)GameMatrix[i - 1, j] <= 2)
                 possibleDirections.Add(0);
-            if (i + 1 < GameMatrix.GetLength(0) && (int)GameMatrix[i + 1, j] <=2)
+            if (i + 1 < GameMatrix.GetLength(0) && (int)GameMatrix[i + 1, j] <= 2)
                 possibleDirections.Add(2);
-            if (j - 1 > 0 && (int)GameMatrix[i, j - 1] <=2)
+            if (j - 1 > 0 && (int)GameMatrix[i, j - 1] <= 2)
                 possibleDirections.Add(1);
-            if (j + 1 < GameMatrix.GetLength(1) && (int)GameMatrix[i, j + 1] <=2)
+            if (j + 1 < GameMatrix.GetLength(1) && (int)GameMatrix[i, j + 1] <= 2)
                 possibleDirections.Add(3);
 
             var selectedPos = r.Next(0, 4);
@@ -387,6 +392,11 @@ namespace Jatek.Logic
         private bool CheckBullet(int i, int j)
         {
             return GameMatrix[i, j] == JatekElements.bullet;
+        }
+
+        public void PauseGame()
+        {
+            GamePaused?.Invoke(this, null);
         }
     }
 }

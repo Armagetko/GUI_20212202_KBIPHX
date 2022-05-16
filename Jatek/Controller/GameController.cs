@@ -41,6 +41,9 @@ namespace Jatek.Controller
                 case Key.Space:
                     control.Shoot();
                     break;
+                case Key.Escape:
+                    control.PauseGame();
+                    break;
             }
         }
     }

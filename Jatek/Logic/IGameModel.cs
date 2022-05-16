@@ -18,6 +18,7 @@ namespace Jatek.Logic
         public event EventHandler LifeLost;
         public event EventHandler GameOver;
         public event EventHandler GameWon;
+        public event EventHandler GamePaused;
         int Lives { get; set; }
     }
 }

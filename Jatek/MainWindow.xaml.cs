@@ -25,6 +25,8 @@ namespace Jatek
     {
         GameController controller;
         JatekLogic logic;
+        DispatcherTimer dt;
+        DispatcherTimer seals;
         public MainWindow()
         {
             InitializeComponent();
@@ -32,25 +34,19 @@ namespace Jatek
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            logic = new JatekLogic();
-            logic.SetupMap();
-            logic.GameOver += Logic_GameOver;
-            logic.LifeLost += Logic_LifeLost;
-            logic.GameWon += Logic_GameWon;
-            controller = new GameController(logic);
-            display.SetupModel(logic);
-            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
 
-            DispatcherTimer seals = new DispatcherTimer();
-            seals.Interval = TimeSpan.FromMilliseconds(200);
-            seals.Tick += seals_Tick;
-            seals.Start();
+        }
+        private void StartButton_Click(object sender, RoutedEventArgs e)
+        {
+            MainMenu.Visibility = Visibility.Hidden;
+            DifficultySelection.Visibility = Visibility.Visible;
 
-            DispatcherTimer dt = new DispatcherTimer();
-            dt.Interval = TimeSpan.FromMilliseconds(50);
-            dt.Tick += Dt_Tick;
-            dt.Start();
-
+        }
+        private void Logic_GamePaused(object sender, EventArgs e)
+        {
+            dt.Stop();
+            seals.Stop();
+            Menu.Visibility=Visibility.Visible;
         }
         private void Dt_Tick(object sender, EventArgs e)
         {
@@ -79,6 +75,8 @@ namespace Jatek
         }
         private void Logic_GameWon(object sender, EventArgs e)
         {
+            dt.Stop();
+            seals.Stop();
             var result = MessageBox.Show($"YOU WON!\n\nPOINTS: {logic.BulletNumber+logic.Lives*2}");
             if (result == MessageBoxResult.OK)
             {
@@ -95,5 +93,92 @@ namespace Jatek
             controller.KeyPressed(e.Key);
         }
 
+        private void ResumeButton_Click(object sender, RoutedEventArgs e)
+        {
+            Menu.Visibility = Visibility.Hidden;
+            dt.Start();
+            seals.Start();
+        }
+
+        private void BackToMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            DifficultySelection.Visibility = Visibility.Hidden;
+            MainMenu.Visibility = Visibility.Visible;
+        }
+
+        private void EasyButton_Click(object sender, RoutedEventArgs e)
+        {
+            DifficultySelection.Visibility = Visibility.Hidden;
+            logic = new JatekLogic();
+            logic.SetupMap(5);
+            logic.GameOver += Logic_GameOver;
+            logic.LifeLost += Logic_LifeLost;
+            logic.GameWon += Logic_GameWon;
+            logic.GamePaused += Logic_GamePaused;
+            controller = new GameController(logic);
+            display.SetupModel(logic);
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+
+            seals = new DispatcherTimer();
+            seals.Interval = TimeSpan.FromMilliseconds(200);
+            seals.Tick += seals_Tick;
+            seals.Start();
+
+            dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromMilliseconds(50);
+            dt.Tick += Dt_Tick;
+            dt.Start();
+
+        }
+
+        private void NormalButton_Click(object sender, RoutedEventArgs e)
+        {
+
+            DifficultySelection.Visibility = Visibility.Hidden;
+            logic = new JatekLogic();
+            logic.SetupMap(3);
+            logic.GameOver += Logic_GameOver;
+            logic.LifeLost += Logic_LifeLost;
+            logic.GameWon += Logic_GameWon;
+            logic.GamePaused += Logic_GamePaused;
+            controller = new GameController(logic);
+            display.SetupModel(logic);
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+
+            seals = new DispatcherTimer();
+            seals.Interval = TimeSpan.FromMilliseconds(200);
+            seals.Tick += seals_Tick;
+            seals.Start();
+
+            dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromMilliseconds(50);
+            dt.Tick += Dt_Tick;
+            dt.Start();
+        }
+
+        private void HardButton_Click(object sender, RoutedEventArgs e)
+        {
+            DifficultySelection.Visibility = Visibility.Hidden;
+            logic = new JatekLogic();
+            logic.SetupMap(1);
+            logic.GameOver += Logic_GameOver;
+            logic.LifeLost += Logic_LifeLost;
+            logic.GameWon += Logic_GameWon;
+            logic.GamePaused += Logic_GamePaused;
+            controller = new GameController(logic);
+            display.SetupModel(logic);
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+
+            seals = new DispatcherTimer();
+            seals.Interval = TimeSpan.FromMilliseconds(200);
+            seals.Tick += seals_Tick;
+            seals.Start();
+
+            dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromMilliseconds(50);
+            dt.Tick += Dt_Tick;
+            dt.Start();
+
+        }
     }
 }

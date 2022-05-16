@@ -87,8 +87,8 @@ namespace Jatek.Renderer
             this.lives = model.Lives;
             this.model.LifeLost += (sender, args) => this.InvalidateVisual();
             this.model.Changed+=(sender,args) => this.InvalidateVisual();
+            this.model.GamePaused += (sender, args) => this.InvalidateVisual();
         }
-
         protected override void OnRender(DrawingContext drawingContext)
         {
             base.OnRender(drawingContext);
