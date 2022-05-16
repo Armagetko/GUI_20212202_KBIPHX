@@ -36,6 +36,7 @@ namespace Jatek.Logic
             Bullets = new List<Bullet>();
             Penguin = new Penguin();
             BulletNumber = 3;
+            Lives = 3;
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), "Levels"),
                 "*.lvl");
             foreach (var item in lvls)
@@ -232,9 +233,13 @@ namespace Jatek.Logic
                     item.Killed = CheckBullet(item.Position[0], item.Position[1] + item.Distances[item.CurrentDistance]);
                 }
                 if (item.Killed == true)
-                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.floor;
+                {
+                    GameMatrix[item.Position[0], item.Position[1]] = JatekElements.bulletfish;
+                    BulletfishesOnMap++;
+                }
             }
             Seals.RemoveAll(t => t.Killed == true);
+
 
             //lövedékek
             foreach (var item in Bullets)
@@ -313,9 +318,6 @@ namespace Jatek.Logic
                         break;
                 }
             }
-
-
-
             Bullets.RemoveAll(t => t.CollisionHappened == true);
 
             Changed?.Invoke(this, null);

@@ -8,26 +8,20 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1600" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
     <Grid x:Name="grid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="12*"/>
+            <ColumnDefinition Width="14*"/>
         </Grid.ColumnDefinitions>
-        <renderer:Display x:Name="display" Grid.ColumnSpan="2"/>
-        <StackPanel>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="3*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="1*"/>
-                    <RowDefinition Height="1*"/>
-                </Grid.RowDefinitions>
-                <Label Name="BulletLabel" Grid.Column="1" Grid.Row="0" Margin="5,10,0,0" FontSize="25" FontFamily="Adobe Fan Heiti Std B" Foreground="#FF31737E"/>
-                <Image Source="Images/bulletfish.png" Grid.Column="0" Grid.Row="0" Height="40" Width="40" Margin="10,10,0,0"/>
-            </Grid>
-            
-        </StackPanel>
-
+        <renderer:Display x:Name="display" Grid.ColumnSpan="3" Grid.RowSpan="3" Margin="0,0,0,65"/>
+        <Image Source="Images/bulletfish.png" Grid.Column="0" Grid.Row="0" Margin="10,5,0,0"/>
+        <Label Name="BulletLabel" Grid.Column="1" Grid.Row="0" Margin="0,0,0,0" FontSize="25" FontFamily="Adobe Fan Heiti Std B" Foreground="#FF3F5663"/>
+        <Label Name="LifeLabel" Grid.Column="1" Grid.Row="2" Margin="0,0,0,10" FontSize="25" FontFamily="Adobe Fan Heiti Std B" Foreground="#FF682E2E"/>
+        <Image Source="Images/life.png" Grid.Column="0" Grid.Row="2" Margin="10,0,0,10"/>
     </Grid>
 </Window>

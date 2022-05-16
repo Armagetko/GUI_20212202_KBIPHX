@@ -32,7 +32,6 @@ namespace Jatek
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            ;
             logic = new JatekLogic();
             logic.SetupMap();
             controller = new GameController(logic);
@@ -48,7 +47,7 @@ namespace Jatek
         {
             logic.MoveGameItems();
             BulletLabel.Content = $"x{logic.BulletNumber}";
-            
+            LifeLabel.Content = $"x{logic.Lives}";
         }
 
 
