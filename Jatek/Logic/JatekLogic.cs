@@ -33,8 +33,6 @@ namespace Jatek.Logic
         public event EventHandler GameOver;
         public event EventHandler GameWon;
         public event EventHandler GamePaused;
-        //külön ablak a játék kezdete előtt
-        //nehézségi szintek
         //játék mentés és betöltés
         //fóka léphessen halra, ha meghal dobja vissza, de eredetileg nem dob halat
         private KeyValuePair<string, int> SavedStats { get; set; }

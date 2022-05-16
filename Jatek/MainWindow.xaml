@@ -7,7 +7,7 @@
         xmlns:renderer="clr-namespace:Jatek.Renderer"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1600" KeyDown="Window_KeyDown" SizeChanged="Window_SizeChanged" Loaded="Window_Loaded">
-    <Grid x:Name="grid">
+    <Grid x:Name="grid" Background="CadetBlue">
         <Grid.RowDefinitions>
             <RowDefinition Height="45*"/>
             <RowDefinition Height="682*"/>
@@ -28,14 +28,14 @@
         <StackPanel Grid.Column="3" Margin="0,45,0,0" Grid.RowSpan="3" Name="Menu" Visibility="Hidden">
             <Label Content="GAME PAUSED" HorizontalAlignment="Center" FontSize="30"/>
             <Button Content="RESUME" FontSize="20" Padding="10" Name="ResumeButton" Click="ResumeButton_Click"/>
-            <Button Content="EXIT TO MAIN MENU" FontSize="20" Padding="10" Name="ExitToMenuButton"/>
+            <Button Content="EXIT TO MAIN MENU" FontSize="20" Padding="10" Name="ExitToMenuButton" Click="BackToMenuButton_Click"/>
         </StackPanel>
         <StackPanel x:Name="MainMenu" Grid.RowSpan="3" Grid.ColumnSpan="5" Background="CadetBlue">
             <Label Content="MAIN MENU" FontSize="30" HorizontalAlignment="Center" Padding="30" Margin="0,60,0,0"/>
             <Button Content="NEW GAME" Name="StartButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="StartButton_Click"/>
-            <Button Content="LOAD GAME" Name="LoadGameButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="StartButton_Click"/>
-            <Button Content="HELP" Name="HelpButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="StartButton_Click"/>
-            <Button Content="EXIT" Name="ExitButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="StartButton_Click"/>
+            <Button Content="LOAD GAME" Name="LoadGameButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5"/>
+            <Button Content="HELP" Name="HelpButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="HelpButton_Click"/>
+            <Button Content="EXIT" Name="ExitButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="ExitButton_Click"/>
         </StackPanel>
         <StackPanel x:Name="DifficultySelection" Grid.RowSpan="3" Grid.ColumnSpan="5" Background="CadetBlue" Visibility="Hidden">
             <Label Content="SELECT DIFFICULTY" FontSize="30" HorizontalAlignment="Center" Padding="30" Margin="0,60,0,0"/>
@@ -43,6 +43,8 @@
             <Button Content="NORMAL" Name="NormalButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="NormalButton_Click"/>
             <Button Content="HARD" Name="HardButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="HardButton_Click"/>
             <Button Content="Back to Main Menu" Name="BackToMenuButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5,50,5,5" Click="BackToMenuButton_Click"/>
+        </StackPanel>
+        <StackPanel Name="HelpWindow" Grid.ColumnSpan="5" Grid.RowSpan="3" Background="CadetBlue" Visibility="Hidden">
         </StackPanel>
     </Grid>
 </Window>
