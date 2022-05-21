@@ -1,5 +1,6 @@
 ﻿using Jatek.Controller;
 using Jatek.Logic;
+using Microsoft.Toolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -28,22 +29,27 @@ namespace Jatek
         JatekLogic logic;
         DispatcherTimer dt;
         DispatcherTimer seals;
+        string[] lvls;
+        public string selected { get; set; }
+
+
         public MainWindow()
         {
             InitializeComponent();
+            lvls = Directory.GetFiles(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Saves"), "*.txt");
+            if (lvls.Length > 0)
+                LoadGameButton.IsEnabled = true;
+            MainMenu.Visibility = Visibility.Visible;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
+            
         }
         private void StartButton_Click(object sender, RoutedEventArgs e)
         {
+            CollapseMenu();
             DifficultySelection.Visibility = Visibility.Visible;
-            HelpWindow.Visibility = Visibility.Hidden;
-            Menu.Visibility = Visibility.Hidden;
-            MainMenu.Visibility = Visibility.Hidden;
-
         }
         private void Logic_GamePaused(object sender, EventArgs e)
         {
@@ -98,23 +104,25 @@ namespace Jatek
 
         private void ResumeButton_Click(object sender, RoutedEventArgs e)
         {
-            Menu.Visibility = Visibility.Hidden;
+            CollapseMenu();
             dt.Start();
             seals.Start();
         }
 
         private void BackToMenuButton_Click(object sender, RoutedEventArgs e)
         {
-            DifficultySelection.Visibility = Visibility.Hidden;
-            HelpWindow.Visibility = Visibility.Hidden;
-            HelpWindow.Children.Clear();
-            Menu.Visibility = Visibility.Hidden;
+            ;
+            CollapseMenu();
             MainMenu.Visibility = Visibility.Visible;
+            if (lvls.Length > 0)
+                LoadGameButton.IsEnabled = true;
+            HelpWindow.Children.Clear();
         }
 
         private void EasyButton_Click(object sender, RoutedEventArgs e)
         {
-            DifficultySelection.Visibility = Visibility.Hidden;
+            CollapseMenu();
+
             logic = new JatekLogic();
             logic.SetupMap(5);
             logic.GameOver += Logic_GameOver;
@@ -139,8 +147,8 @@ namespace Jatek
 
         private void NormalButton_Click(object sender, RoutedEventArgs e)
         {
+            CollapseMenu();
 
-            DifficultySelection.Visibility = Visibility.Hidden;
             logic = new JatekLogic();
             logic.SetupMap(3);
             logic.GameOver += Logic_GameOver;
@@ -161,10 +169,20 @@ namespace Jatek
             dt.Tick += Dt_Tick;
             dt.Start();
         }
-
+        private void CollapseMenu()
+        {
+            DifficultySelection.Visibility = Visibility.Collapsed;
+            HelpWindow.Visibility = Visibility.Collapsed;
+            Menu.Visibility = Visibility.Collapsed;
+            MainMenu.Visibility = Visibility.Collapsed;
+            if (SavedGamesPanel.Items.Count > 0)
+                SavedGamesPanel.Items.Clear();
+            SavedGamesPanel.Visibility = Visibility.Collapsed;
+        }
         private void HardButton_Click(object sender, RoutedEventArgs e)
         {
-            DifficultySelection.Visibility = Visibility.Hidden;
+            CollapseMenu();
+
             logic = new JatekLogic();
             logic.SetupMap(1);
             logic.GameOver += Logic_GameOver;
@@ -193,7 +211,7 @@ namespace Jatek
 
         private void HelpButton_Click(object sender, RoutedEventArgs e)
         {
-            MainMenu.Visibility = Visibility.Hidden;
+            MainMenu.Visibility = Visibility.Collapsed;
             HelpWindow.Visibility = Visibility.Visible;
             Label k = new Label();
             k.Content = "CONTROLS";
@@ -226,6 +244,54 @@ namespace Jatek
                     HelpWindow.Children.Add(l);
                 }
             }
+        }
+
+        private void LoadGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            SavedGamesPanel.Visibility = Visibility.Visible;
+            foreach (var item in lvls)
+            {
+                Label tmp = new Label();
+                tmp.Content = item.Split('.')[1].Split(@"\").Last();
+                tmp.FontSize = 20;
+                tmp.Padding = new Thickness(10, 10,10,10);
+                tmp.MouseLeftButtonDown += Tmp_MouseLeftButtonDown; 
+                SavedGamesPanel.Items.Add(tmp);
+            }
+
+        }
+
+        private void Tmp_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var orig=sender.ToString().Split(' ')[1]+".txt";
+            var path = System.IO.Path.Combine(Directory.GetCurrentDirectory(),"Saves",orig);
+            CollapseMenu();
+            logic = new JatekLogic();
+            logic.GameOver += Logic_GameOver;
+            logic.LifeLost += Logic_LifeLost;
+            logic.GameWon += Logic_GameWon;
+            logic.GamePaused += Logic_GamePaused;
+            controller = new GameController(logic);
+            display.SetupModel(logic);
+            display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
+
+            seals = new DispatcherTimer();
+            seals.Interval = TimeSpan.FromMilliseconds(200);
+            seals.Tick += seals_Tick;
+            seals.Start();
+
+            dt = new DispatcherTimer();
+            dt.Interval = TimeSpan.FromMilliseconds(50);
+            dt.Tick += Dt_Tick;
+            dt.Start();
+            logic.LoadGame(path);
+        }
+
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var a= logic.SaveGame();
+            var result = MessageBox.Show("Game saved as "+a);
         }
     }
 }

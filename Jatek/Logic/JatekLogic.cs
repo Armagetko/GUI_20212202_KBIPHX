@@ -33,9 +33,11 @@ namespace Jatek.Logic
         public event EventHandler GameOver;
         public event EventHandler GameWon;
         public event EventHandler GamePaused;
-        //játék mentés és betöltés
         //fóka léphessen halra, ha meghal dobja vissza, de eredetileg nem dob halat
+        //ha minden fóka meghalt, jöjjön a kardszárnyú delfin 3 élettel, fóka mozgás, áthalad a falakon, 5 halat dob
+        //legyen szép
         private KeyValuePair<string, int> SavedStats { get; set; }
+        private int Difficulty;
 
         public void SetupMap(int diff)
         {
@@ -44,6 +46,7 @@ namespace Jatek.Logic
             Bullets = new List<Bullet>();
             Penguin = new Penguin();
             BulletNumber = 0;
+            Difficulty = diff;
             Lives = diff;
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), $"Levels{diff}"),
                 "*.lvl");
@@ -52,7 +55,6 @@ namespace Jatek.Logic
                 levels.Enqueue(item);
             }
             LoadNext(levels.Dequeue());
-
         }
         public void RestartLevel()
         {
@@ -104,6 +106,64 @@ namespace Jatek.Logic
                 default:
                     return JatekElements.floor;
             }
+        }
+        private char ConvertToChar(JatekElements v)
+        {
+            switch (v)
+            {
+                case JatekElements.ice: return 'e';
+                case JatekElements.ice1: return '1';
+                case JatekElements.ice2: return '2';
+                case JatekElements.ice3: return '3';
+                case JatekElements.ice4: return '4';
+                case JatekElements.ice5: return '5';
+                case JatekElements.garbage: return 'S';
+                case JatekElements.hpfish: return 'H';
+                case JatekElements.bulletfish: return 'L';
+                case JatekElements.player: return 'P';
+                case JatekElements.seal: return 'o';
+                default: return ' ';
+            }
+
+        }
+        public void LoadGame(string path)
+        {
+            StreamReader sr = new StreamReader(path);
+            r = new Random();
+            levels = new Queue<string>();
+            Bullets = new List<Bullet>();
+            Penguin = new Penguin();
+            BulletNumber = int.Parse(sr.ReadLine());
+            Lives = int.Parse(sr.ReadLine());
+            Difficulty = int.Parse(sr.ReadLine());
+            while (!sr.EndOfStream)
+            {
+                string tmp= Path.Combine(Directory.GetCurrentDirectory(), $"Levels{Difficulty}",sr.ReadLine());
+                levels.Enqueue(tmp);
+            }
+            LoadNext(levels.Dequeue());
+        }
+        public string SaveGame()
+        {
+            Queue<string> tmpLevels = levels;
+
+            int k = 0;
+            if (!Directory.Exists("Saves"))
+                Directory.CreateDirectory("Saves");
+            string path = Path.Combine(Directory.GetCurrentDirectory(), "Saves");
+            while (File.Exists($@"{path}\save{k}.txt"))
+                k++;
+            StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(),"Saves", $"save{k}.txt"));
+            //C:\Users\bodib\source\repos\Jatek\Jatek\bin\Debug\net5.0-windows\Levels3\LVL00.lvl
+            sw.WriteLine(BulletNumber);
+            sw.WriteLine(Lives);
+            sw.WriteLine(Difficulty);
+            sw.WriteLine(SavedStats.Key);
+
+            while (tmpLevels.Count > 0)
+                sw.WriteLine(tmpLevels.Dequeue().Split(@"\").Last());
+            sw.Close();
+            return $"save{k}";
         }
 
         public void Move(Directions direction)
