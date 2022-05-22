@@ -33,7 +33,7 @@ namespace Jatek.Logic
         public event EventHandler GameOver;
         public event EventHandler GameWon;
         public event EventHandler GamePaused;
-        //fóka léphessen halra, ha meghal dobja vissza, de eredetileg nem dob halat
+
         //ha minden fóka meghalt, jöjjön a kardszárnyú delfin 3 élettel, fóka mozgás, áthalad a falakon, 5 halat dob
         //legyen szép
         private KeyValuePair<string, int> SavedStats { get; set; }
@@ -107,25 +107,6 @@ namespace Jatek.Logic
                     return JatekElements.floor;
             }
         }
-        private char ConvertToChar(JatekElements v)
-        {
-            switch (v)
-            {
-                case JatekElements.ice: return 'e';
-                case JatekElements.ice1: return '1';
-                case JatekElements.ice2: return '2';
-                case JatekElements.ice3: return '3';
-                case JatekElements.ice4: return '4';
-                case JatekElements.ice5: return '5';
-                case JatekElements.garbage: return 'S';
-                case JatekElements.hpfish: return 'H';
-                case JatekElements.bulletfish: return 'L';
-                case JatekElements.player: return 'P';
-                case JatekElements.seal: return 'o';
-                default: return ' ';
-            }
-
-        }
         public void LoadGame(string path)
         {
             StreamReader sr = new StreamReader(path);
@@ -138,7 +119,7 @@ namespace Jatek.Logic
             Difficulty = int.Parse(sr.ReadLine());
             while (!sr.EndOfStream)
             {
-                string tmp= Path.Combine(Directory.GetCurrentDirectory(), $"Levels{Difficulty}",sr.ReadLine());
+                string tmp = Path.Combine(Directory.GetCurrentDirectory(), $"Levels{Difficulty}", sr.ReadLine());
                 levels.Enqueue(tmp);
             }
             LoadNext(levels.Dequeue());
@@ -153,7 +134,7 @@ namespace Jatek.Logic
             string path = Path.Combine(Directory.GetCurrentDirectory(), "Saves");
             while (File.Exists($@"{path}\save{k}.txt"))
                 k++;
-            StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(),"Saves", $"save{k}.txt"));
+            StreamWriter sw = new StreamWriter(Path.Combine(Directory.GetCurrentDirectory(), "Saves", $"save{k}.txt"));
             //C:\Users\bodib\source\repos\Jatek\Jatek\bin\Debug\net5.0-windows\Levels3\LVL00.lvl
             sw.WriteLine(BulletNumber);
             sw.WriteLine(Lives);
@@ -300,7 +281,7 @@ namespace Jatek.Logic
                 int i = item.Position[0];
                 int j = item.Position[1];
                 var prevElement = new JatekElements();
-                var newPos = SealGetNextPosition(i, j, item.currentDirection, item.KeptSameDirection);
+                var newPos = SealGetNextPosition(i, j, item.currentDirection, item.KeptSameDirection, item.fishSwallowed);
                 if (newPos == item.currentDirection)
                     item.KeptSameDirection++;
                 else
@@ -338,6 +319,11 @@ namespace Jatek.Logic
                 {
                     item.SealMovedTo(i, j);
                     item.Killed = CheckBullet(item.Position[0], item.Position[1]);
+                    if (prevElement == JatekElements.bulletfish)
+                    {
+                        item.FishSwallowed();
+                        BulletfishesOnMap--;
+                    }
                     if (prevElement == JatekElements.player)
                     {
                         if (Lives > 0)
@@ -349,9 +335,16 @@ namespace Jatek.Logic
                 }
 
             }
+            Seals.FindAll(x => x.Killed == true && x.fishSwallowed == true)
+                .ForEach(y => DropFish(y.Position[0], y.Position[1]));
             Seals.RemoveAll(t => t.Killed == true);
 
             Changed?.Invoke(this, null);
+        }
+        private void DropFish(int i, int j)
+        {
+            GameMatrix[i, j] = JatekElements.bulletfish;
+            BulletfishesOnMap++;
         }
         public void MoveBullets()
         {
@@ -362,7 +355,7 @@ namespace Jatek.Logic
                 switch (item.direction)
                 {
                     case Directions.up:
-                        if (item.Origin[0] - 1 >= 0)
+                        if (item.Origin[0] > 0)
                         {
                             if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
                                 GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
@@ -370,7 +363,7 @@ namespace Jatek.Logic
                         }
                         break;
                     case Directions.left:
-                        if (item.Origin[1] - 1 >= 0)
+                        if (item.Origin[1] > 0)
                         {
                             if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.player)
                                 GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
@@ -399,9 +392,11 @@ namespace Jatek.Logic
                     item.CollisionHappened = true;
                     if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.seal)
                     {
-                        Seals.First(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]).Killed = true;
-                        GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.bulletfish;
-                        BulletfishesOnMap++;
+                        //Seals.First(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]).Killed = true;
+                        GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
+                        if (Seals.First(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]).fishSwallowed == true)
+                            DropFish(item.Origin[0], item.Origin[1]);
+                        Seals.RemoveAt(Seals.FindIndex(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]));
                     }
                 }
                 if (item.CollisionHappened == false)
@@ -412,24 +407,26 @@ namespace Jatek.Logic
 
             Changed?.Invoke(this, null);
         }
-        private Directions SealGetNextPosition(int i, int j, Directions prevDirection, int keptSameDirection)
+        private Directions SealGetNextPosition(int i, int j, Directions prevDirection, int keptSameDirection, bool fish)
         {
-            List<int> possibleDirections = new List<int>();
-
-            if (i - 1 > 0 && (int)GameMatrix[i - 1, j] <= 2)
-                possibleDirections.Add(0);
-            if (i + 1 < GameMatrix.GetLength(0) && (int)GameMatrix[i + 1, j] <= 2)
-                possibleDirections.Add(2);
-            if (j - 1 > 0 && (int)GameMatrix[i, j - 1] <= 2)
-                possibleDirections.Add(1);
-            if (j + 1 < GameMatrix.GetLength(1) && (int)GameMatrix[i, j + 1] <= 2)
-                possibleDirections.Add(3);
+            int[] possibleDirections = new int[4] { 5, 5, 5, 5 };
+            //if-else ide
+            int p = (fish == true) ? 2 : 3;
+            if (i - 1 > 0 && (int)GameMatrix[i - 1, j] <= p)
+                possibleDirections[0] = 0;
+            if (i + 1 < GameMatrix.GetLength(0) && (int)GameMatrix[i + 1, j] <= p)
+                possibleDirections[2] = 2;
+            if (j - 1 > 0 && (int)GameMatrix[i, j - 1] <= p)
+                possibleDirections[1] = 1;
+            if (j + 1 < GameMatrix.GetLength(1) && (int)GameMatrix[i, j + 1] <= p)
+                possibleDirections[3] = 3;
 
             var selectedPos = r.Next(0, 4);
             if (keptSameDirection < 8)
                 selectedPos = (int)prevDirection;
             while (!possibleDirections.Contains(selectedPos))
                 selectedPos = r.Next(0, 4);
+            ;
             return (Directions)selectedPos;
         }
         public void Shoot()

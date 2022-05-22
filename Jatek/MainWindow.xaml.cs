@@ -60,7 +60,7 @@ namespace Jatek
         private void Dt_Tick(object sender, EventArgs e)
         {
             logic.MoveBullets();
-            BulletLabel.Content = $"x{logic.BulletNumber}";
+            BulletLabel.Content = $"x{logic.BulletNumber}\t remaining: {logic.BulletfishesOnMap}";
             LifeLabel.Content = $"x{logic.Lives}";
         }
         private void seals_Tick(object sender, EventArgs e)
@@ -160,12 +160,12 @@ namespace Jatek
             display.Resize(new Size(grid.ActualWidth, grid.ActualHeight));
 
             seals = new DispatcherTimer();
-            seals.Interval = TimeSpan.FromMilliseconds(200);
+            seals.Interval = TimeSpan.FromMilliseconds(181);
             seals.Tick += seals_Tick;
             seals.Start();
 
             dt = new DispatcherTimer();
-            dt.Interval = TimeSpan.FromMilliseconds(50);
+            dt.Interval = TimeSpan.FromMilliseconds(49);
             dt.Tick += Dt_Tick;
             dt.Start();
         }
