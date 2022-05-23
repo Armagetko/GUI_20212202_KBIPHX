@@ -32,7 +32,8 @@
             <Button Content="EXIT TO MAIN MENU" FontSize="20" Padding="10" Name="ExitToMenuButton" Click="BackToMenuButton_Click"/>
         </StackPanel>
         <StackPanel x:Name="MainMenu" Grid.RowSpan="3" Grid.ColumnSpan="5" Background="CadetBlue" Visibility="Collapsed">
-            <Label Content="MAIN MENU" FontSize="30" HorizontalAlignment="Center" Padding="30" Margin="0,60,0,0"/>
+            <Label Content="Predator Penguin" FontSize="40" HorizontalAlignment="Center" Padding="30" Margin="0,30,0,0" FontFamily="Arial Black"/>
+            <Label Content="MAIN MENU" FontSize="30" HorizontalAlignment="Center" Padding="30" Margin="0,0,0,0"/>
             <Button Content="NEW GAME" Name="StartButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="StartButton_Click"/>
             <Button Content="LOAD GAME" Name="LoadGameButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="LoadGameButton_Click" IsEnabled="False"/>
             <Button Content="HELP" Name="HelpButton" FontSize="20" HorizontalAlignment="Center" Width="300" Padding="20" Margin="5" Click="HelpButton_Click"/>

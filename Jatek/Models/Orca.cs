@@ -12,7 +12,7 @@ namespace Jatek.Logic
         public int OrcaHP { get; set; }
         public Orca(int x, int y):base(x,y)
         {
-            OrcaHP = 1;
+            OrcaHP = 3;
         }
     }
 }

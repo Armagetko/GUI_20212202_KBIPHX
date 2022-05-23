@@ -48,7 +48,7 @@ namespace Jatek.Logic
             levels = new Queue<string>();
             Bullets = new List<Bullet>();
             Penguin = new Penguin();
-            BulletNumber = 100;
+            BulletNumber = 0;
             Difficulty = diff;
             Lives = diff;
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), $"Levels{diff}"),
