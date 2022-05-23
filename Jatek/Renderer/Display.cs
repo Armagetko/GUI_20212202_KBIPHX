@@ -28,12 +28,10 @@ namespace Jatek.Renderer
         ImageBrush sealBrush;
         ImageBrush bulletBrush;
         ImageBrush bgBrush;
+        ImageBrush orcaBrush;
         Size size;
-
         public int bullets() { return model.BulletNumber; }
         public int lives;
-
-
 
         public void Resize(Size size)
         {
@@ -82,6 +80,10 @@ namespace Jatek.Renderer
             penguinBrush = new ImageBrush(new BitmapImage
                 (new Uri(Path.Combine("Images", "penguin3.png"),
             UriKind.RelativeOrAbsolute)));
+
+            orcaBrush = new ImageBrush(new BitmapImage
+                (new Uri(Path.Combine("Images","orca3.png"),
+                UriKind.RelativeOrAbsolute)));
 
             this.model = model;
             this.lives = model.Lives;
@@ -145,6 +147,12 @@ namespace Jatek.Renderer
                                 break;
                             case JatekElements.bullet:
                                 brush = bulletBrush;
+                                break;
+                            case JatekElements.orca:
+                                if (model.orca.OrcaHP > 0)
+                                    brush = new ImageBrush(new BitmapImage
+                                        (new Uri(Path.Combine("Images", $"orca{model.orca.OrcaHP}.png"),
+                                         UriKind.RelativeOrAbsolute)));
                                 break;
                             default:
                                 break;

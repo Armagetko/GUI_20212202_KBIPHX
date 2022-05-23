@@ -15,7 +15,7 @@ namespace Jatek.Logic
     public enum JatekElements
     {
         bullet, player, floor, bulletfish, garbage, hpfish,
-        ice, ice1, ice2, ice3, ice4, ice5, seal
+        ice, ice1, ice2, ice3, ice4, ice5, seal, orca
     }
     public class JatekLogic : IGameControl, IGameModel
     {
@@ -25,8 +25,11 @@ namespace Jatek.Logic
         public static Random r;
         public int BulletfishesOnMap { get; set; }
         public int Lives { get; set; }
+        private int[] OrcaDiedHere { get; set; }
         public Penguin Penguin { get; set; }
+        public Orca orca { get; set; }
         public int BulletNumber { get; set; }
+        public int SealNumber { get { return Seals.Count; } }
         public List<Bullet> Bullets { get; set; }
         public event EventHandler Changed;
         public event EventHandler LifeLost;
@@ -34,7 +37,7 @@ namespace Jatek.Logic
         public event EventHandler GameWon;
         public event EventHandler GamePaused;
 
-        //ha minden fóka meghalt, jöjjön a kardszárnyú delfin 3 élettel, fóka mozgás, áthalad a falakon, 5 halat dob
+        //ha minden fóka meghalt, jöjjön a kardszárnyú delfin 3 élettel, fóka mozgás, 5 halat dob
         //legyen szép
         private KeyValuePair<string, int> SavedStats { get; set; }
         private int Difficulty;
@@ -45,7 +48,7 @@ namespace Jatek.Logic
             levels = new Queue<string>();
             Bullets = new List<Bullet>();
             Penguin = new Penguin();
-            BulletNumber = 0;
+            BulletNumber = 100;
             Difficulty = diff;
             Lives = diff;
             var lvls = Directory.GetFiles(Path.Combine(Directory.GetCurrentDirectory(), $"Levels{diff}"),
@@ -201,7 +204,7 @@ namespace Jatek.Logic
                 GameMatrix[i, j] = JatekElements.player;
                 GameMatrix[old_i, old_j] = JatekElements.floor;
             }
-            else if (GameMatrix[i, j] == JatekElements.seal)
+            else if (GameMatrix[i, j] == JatekElements.seal && GameMatrix[i, j] == JatekElements.orca)
             {
                 if (Lives > 0)
                     LifeLost?.Invoke(this, null);
@@ -278,6 +281,8 @@ namespace Jatek.Logic
             //fókák
             foreach (var item in Seals)
             {
+                if (Seals.Count == 1)
+                    orca = new Orca(item.Position[0], item.Position[1]);
                 int i = item.Position[0];
                 int j = item.Position[1];
                 var prevElement = new JatekElements();
@@ -338,6 +343,8 @@ namespace Jatek.Logic
             Seals.FindAll(x => x.Killed == true && x.fishSwallowed == true)
                 .ForEach(y => DropFish(y.Position[0], y.Position[1]));
             Seals.RemoveAll(t => t.Killed == true);
+            if (Seals.Count == 0)
+                GameMatrix[orca.Position[0], orca.Position[1]] = JatekElements.orca;
 
             Changed?.Invoke(this, null);
         }
@@ -390,13 +397,38 @@ namespace Jatek.Logic
                 if (GameMatrix[item.Origin[0], item.Origin[1]] != JatekElements.floor)
                 {
                     item.CollisionHappened = true;
+                    if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.orca)
+                    {
+
+
+                        if (orca.OrcaHP > 0)
+                            orca.OrcaHP--;
+                        else
+                        {
+                            OrcaDiedHere = new int[2] { orca.Position[0], orca.Position[1] };
+                            GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
+                            OrcaDiedHere = new int[2] { orca.Position[0], orca.Position[1] };
+                            OrcaDied();
+                        }
+                    }
                     if (GameMatrix[item.Origin[0], item.Origin[1]] == JatekElements.seal)
                     {
-                        //Seals.First(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]).Killed = true;
                         GameMatrix[item.Origin[0], item.Origin[1]] = JatekElements.floor;
-                        if (Seals.First(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]).fishSwallowed == true)
+
+                        int a = Seals.FindIndex(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]);
+                        Seals[a].Killed = true;
+
+                        if (Seals[a].fishSwallowed == true)
                             DropFish(item.Origin[0], item.Origin[1]);
-                        Seals.RemoveAt(Seals.FindIndex(t => t.Position[0] == item.Origin[0] && t.Position[1] == item.Origin[1]));
+
+                        if (Seals.Count > 1)
+                            Seals.RemoveAt(a);
+                        else
+                        {
+                            orca = new Orca(item.Origin[0], item.Origin[1]);
+                            Seals.RemoveAt(a);
+                            GameMatrix[orca.Position[0], orca.Position[1]] = JatekElements.orca;
+                        }
                     }
                 }
                 if (item.CollisionHappened == false)
@@ -406,6 +438,139 @@ namespace Jatek.Logic
             Seals.RemoveAll(t => t.Killed == true);
 
             Changed?.Invoke(this, null);
+        }
+        public void MoveOrca()
+        {
+            if (orca.OrcaHP == 0)
+            {
+                OrcaDied();
+            }
+            else
+            {
+                int[] possibleDirections = new int[4] { 5, 5, 5, 5 };
+                int i = orca.Position[0];
+                int j = orca.Position[1];
+                if (i - 1 > 0 && (int)GameMatrix[i - 1, j] <= 2)
+                    possibleDirections[0] = 0;
+                if (i + 1 < GameMatrix.GetLength(0) && (int)GameMatrix[i + 1, j] <= 2)
+                    possibleDirections[2] = 2;
+                if (j - 1 > 0 && (int)GameMatrix[i, j - 1] <= 2)
+                    possibleDirections[1] = 1;
+                if (j + 1 < GameMatrix.GetLength(1) && (int)GameMatrix[i, j + 1] <= 2)
+                    possibleDirections[3] = 3;
+
+                var selectedPos = r.Next(0, 4);
+
+                if (orca.KeptSameDirection < 6)
+                    selectedPos = (int)orca.currentDirection;
+                while (!possibleDirections.Contains(selectedPos))
+                    selectedPos = r.Next(0, 4);
+
+                orca.KeptSameDirection = (selectedPos == (int)orca.currentDirection) ? orca.KeptSameDirection + 1 : 0;
+                orca.currentDirection = (Directions)selectedPos;
+
+                var prevElement = new JatekElements();
+                switch (orca.currentDirection)
+                {
+                    case Directions.up:
+                        GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i - 1, j];
+                        GameMatrix[i - 1, j] = JatekElements.orca;
+                        i--;
+                        break;
+                    case Directions.left:
+                        GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i, j - 1];
+                        GameMatrix[i, j - 1] = JatekElements.orca;
+                        j--;
+                        break;
+                    case Directions.down:
+                        GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i + 1, j];
+                        GameMatrix[i + 1, j] = JatekElements.orca;
+                        i++;
+                        break;
+                    case Directions.right:
+                        GameMatrix[i, j] = JatekElements.floor;
+                        prevElement = GameMatrix[i, j + 1];
+                        GameMatrix[i, j + 1] = JatekElements.orca;
+                        j++;
+                        break;
+                }
+            
+                orca.Killed = CheckBullet(i, j);
+                if (orca.Killed == false)
+                {
+                    orca.SealMovedTo(i, j);
+                    OrcaDiedHere = new int[2] { orca.Position[0], orca.Position[1] };
+                    orca.Killed = CheckBullet(i, j);
+                    if (prevElement == JatekElements.player)
+                    {
+                        if (Lives > 0)
+                            LifeLost?.Invoke(this, null);
+                        else
+                            GameOver?.Invoke(this, null);
+                    }
+                }
+                else if (orca.Killed == true && orca.OrcaHP > 0)
+                {
+                    orca.OrcaHP--;
+                    orca.Killed = false;
+                }
+                else
+                {
+                    OrcaDiedHere = new int[2] { orca.Position[0], orca.Position[1] };
+                    GameMatrix[orca.Position[0], orca.Position[1]] = JatekElements.floor;
+                    OrcaDied();
+                }
+
+            }
+            Changed?.Invoke(this, null);
+        }
+        public void OrcaDied()
+        {
+            int i = OrcaDiedHere[0];
+            int j = OrcaDiedHere[1];
+            GameMatrix[i, j] = JatekElements.bulletfish;
+            int pcs = 1;
+            ;
+            while (pcs < 5)
+            {
+                if (MoreNeeded(pcs) == true && i - 1 > 1 && GameMatrix[i - 1, j] == JatekElements.floor)
+                {
+                    i--;
+                    ChangeTile(i, j);
+                    pcs++;
+                }
+                if (MoreNeeded(pcs) == true && i + 1 < GameMatrix.GetLength(0) - 1 && GameMatrix[i + 1, j] == JatekElements.floor)
+                {
+                    i++;
+                    ChangeTile(i, j);
+                    pcs++;
+                }
+                if (MoreNeeded(pcs) == true && j - 1 > 1 && GameMatrix[i, j - 1] == JatekElements.floor)
+                {
+                    j--;
+                    ChangeTile(i, j);
+                    pcs++;
+                }
+                if (MoreNeeded(pcs) == true && j + 1 < GameMatrix.GetLength(1) - 1 && GameMatrix[i, j + 1] == JatekElements.floor)
+                {
+                    i--;
+                    ChangeTile(i, j);
+                    pcs++;
+                }
+            }
+            Changed?.Invoke(this, null);
+        }
+        private bool MoreNeeded(int pcs)
+        {
+            return pcs < 5;
+        }
+        private void ChangeTile(int i, int j)
+        {
+            GameMatrix[i, j] = JatekElements.bulletfish;
+            BulletfishesOnMap++;
         }
         private Directions SealGetNextPosition(int i, int j, Directions prevDirection, int keptSameDirection, bool fish)
         {
@@ -426,7 +591,7 @@ namespace Jatek.Logic
                 selectedPos = (int)prevDirection;
             while (!possibleDirections.Contains(selectedPos))
                 selectedPos = r.Next(0, 4);
-            ;
+
             return (Directions)selectedPos;
         }
         public void Shoot()

@@ -10,9 +10,11 @@ namespace Jatek.Logic
     public interface IGameModel
     {
         Penguin Penguin { get; set; }
+        Orca orca { get; set; }
         JatekElements[,] GameMatrix { get; set; }
         List<Seal> Seals { get; set; }
         int BulletNumber { get; set; }
+        void OrcaDied();
 
         event EventHandler Changed;
         public event EventHandler LifeLost;

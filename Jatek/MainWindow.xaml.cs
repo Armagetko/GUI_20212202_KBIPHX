@@ -65,7 +65,10 @@ namespace Jatek
         }
         private void seals_Tick(object sender, EventArgs e)
         {
-            logic.MoveSeals();
+            if (logic.SealNumber > 0)
+                logic.MoveSeals();
+            else if(logic.orca.OrcaHP>=0)
+                logic.MoveOrca();
         }
 
         private void Logic_LifeLost(object sender, EventArgs e)
